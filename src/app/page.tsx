@@ -158,8 +158,9 @@ function AutoTraderContent() {
   }, [activeFilters, page]);
 
   useEffect(() => {
-    fetchInventory();
-  }, [fetchInventory]);
+    fetchInventory(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilters]); // Run a fresh search only when filters change, not when page changes
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
