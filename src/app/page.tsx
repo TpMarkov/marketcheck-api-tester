@@ -36,8 +36,18 @@ export default function AutoTrader() {
   const [totalFound, setTotalFound] = useState(0);
   const [page, setPage] = useState(0);
 
-  // Filters
   const [filters, setFilters] = useState({
+    make: "",
+    model: "",
+    year_min: "",
+    year_max: "",
+    price_max: "",
+    body_type: "",
+    car_type: "used"
+  });
+
+  // Active Filters (only updated when Apply is clicked)
+  const [activeFilters, setActiveFilters] = useState({
     make: "",
     model: "",
     year_min: "",
@@ -93,13 +103,13 @@ export default function AutoTrader() {
       const queryParams = new URLSearchParams();
       queryParams.append("endpoint", "/v2/search/car/active");
 
-      if (filters.make) queryParams.append("make", filters.make);
-      if (filters.model) queryParams.append("model", filters.model);
-      if (filters.year_min) queryParams.append("year_min", filters.year_min);
-      if (filters.year_max) queryParams.append("year_max", filters.year_max);
-      if (filters.price_max) queryParams.append("price_max", filters.price_max);
-      if (filters.body_type) queryParams.append("body_type", filters.body_type);
-      if (filters.car_type) queryParams.append("car_type", filters.car_type);
+      if (activeFilters.make) queryParams.append("make", activeFilters.make);
+      if (activeFilters.model) queryParams.append("model", activeFilters.model);
+      if (activeFilters.year_min) queryParams.append("year_min", activeFilters.year_min);
+      if (activeFilters.year_max) queryParams.append("year_max", activeFilters.year_max);
+      if (activeFilters.price_max) queryParams.append("price_max", activeFilters.price_max);
+      if (activeFilters.body_type) queryParams.append("body_type", activeFilters.body_type);
+      if (activeFilters.car_type) queryParams.append("car_type", activeFilters.car_type);
 
       queryParams.append("start", (isLoadMore ? (page + 1) * 50 : 0).toString());
       queryParams.append("rows", "50");
@@ -125,7 +135,7 @@ export default function AutoTrader() {
     } finally {
       setLoading(false);
     }
-  }, [filters, page]);
+  }, [activeFilters, page]);
 
   useEffect(() => {
     fetchInventory();
@@ -142,7 +152,8 @@ export default function AutoTrader() {
 
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchInventory();
+    setActiveFilters(filters);
+    setPage(0); // Reset pagination on new search
     setShowFilters(false);
   };
 
