@@ -54,7 +54,11 @@ function AutoTraderContent() {
     year_min: searchParams.get("year_min") || "",
     year_max: searchParams.get("year_max") || "",
     price_max: searchParams.get("price_max") || "",
+    miles_max: searchParams.get("miles_max") || "",
     body_type: searchParams.get("body_type") || "",
+    fuel_type: searchParams.get("fuel_type") || "",
+    transmission: searchParams.get("transmission") || "",
+    drivetrain: searchParams.get("drivetrain") || "",
     car_type: searchParams.get("car_type") || "used"
   };
 
@@ -69,7 +73,11 @@ function AutoTraderContent() {
       year_min: searchParams.get("year_min") || "",
       year_max: searchParams.get("year_max") || "",
       price_max: searchParams.get("price_max") || "",
+      miles_max: searchParams.get("miles_max") || "",
       body_type: searchParams.get("body_type") || "",
+      fuel_type: searchParams.get("fuel_type") || "",
+      transmission: searchParams.get("transmission") || "",
+      drivetrain: searchParams.get("drivetrain") || "",
       car_type: searchParams.get("car_type") || "used"
     };
     setActiveFilters(freshFilters);
@@ -149,7 +157,23 @@ function AutoTraderContent() {
       if (activeFilters.year_min) queryParams.append("year_min", activeFilters.year_min);
       if (activeFilters.year_max) queryParams.append("year_max", activeFilters.year_max);
       if (activeFilters.price_max) queryParams.append("price_max", activeFilters.price_max);
+      if (activeFilters.miles_max) queryParams.append("miles_max", activeFilters.miles_max);
       if (activeFilters.body_type) queryParams.append("body_type", activeFilters.body_type);
+      
+      if (activeFilters.fuel_type) {
+        if (activeFilters.fuel_type === "Plug-In Hybrid") {
+          queryParams.append("powertrain_type", "PHEV");
+        } else if (activeFilters.fuel_type === "Electric") {
+          queryParams.append("powertrain_type", "BEV");
+        } else if (activeFilters.fuel_type === "Hybrid") {
+          queryParams.append("powertrain_type", "HEV");
+        } else {
+          queryParams.append("fuel_type", activeFilters.fuel_type);
+        }
+      }
+
+      if (activeFilters.transmission) queryParams.append("transmission", activeFilters.transmission);
+      if (activeFilters.drivetrain) queryParams.append("drivetrain", activeFilters.drivetrain);
       if (activeFilters.car_type) queryParams.append("car_type", activeFilters.car_type);
 
       queryParams.append("start", (isLoadMore ? (page + 1) * 50 : 0).toString());
@@ -504,22 +528,64 @@ function AutoTraderContent() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Max Price ($)</label>
-                    <input type="number" name="price_max" placeholder="e.g. 50000" value={filters.price_max} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors" />
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Max Price ($)</label>
+                      <input type="number" name="price_max" placeholder="50000" value={filters.price_max} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Max Miles</label>
+                      <input type="number" name="miles_max" placeholder="60000" value={filters.miles_max} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors" />
+                    </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Body Type</label>
-                    <select name="body_type" value={filters.body_type} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors appearance-none bg-transparent">
-                      <option value="">Any Body Type</option>
-                      <option value="SUV">SUV</option>
-                      <option value="Sedan">Sedan</option>
-                      <option value="Pickup">Pickup</option>
-                      <option value="Coupe">Coupe</option>
-                      <option value="Convertible">Convertible</option>
-                      <option value="Wagon">Hatchback / Wagon</option>
-                    </select>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Body Type</label>
+                      <select name="body_type" value={filters.body_type} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors appearance-none bg-transparent">
+                        <option value="">Any</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Sedan">Sedan</option>
+                        <option value="Pickup">Pickup</option>
+                        <option value="Coupe">Coupe</option>
+                        <option value="Convertible">Convertible</option>
+                        <option value="Wagon">Hatchback / Wagon</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Fuel Type</label>
+                      <select name="fuel_type" value={filters.fuel_type} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors appearance-none bg-transparent">
+                        <option value="">Any</option>
+                        <option value="Gasoline">Gasoline</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Plug-In Hybrid">Plug-In Hybrid</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Flex Fuel Vehicle">Flex Fuel</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Transmission</label>
+                      <select name="transmission" value={filters.transmission} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors appearance-none bg-transparent">
+                        <option value="">Any</option>
+                        <option value="Automatic">Automatic</option>
+                        <option value="Manual">Manual</option>
+                      </select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Drivetrain</label>
+                      <select name="drivetrain" value={filters.drivetrain} onChange={handleFilterChange} className="w-full border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors appearance-none bg-transparent">
+                        <option value="">Any</option>
+                        <option value="AWD">AWD</option>
+                        <option value="4WD">4WD</option>
+                        <option value="FWD">FWD</option>
+                        <option value="RWD">RWD</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
