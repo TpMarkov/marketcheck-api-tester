@@ -136,10 +136,10 @@ export default function CarDetailsPage() {
 
       <main className="max-w-[1600px] mx-auto px-6 lg:px-12 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          
+
           {/* Left Column: Gallery & Details */}
           <div className="lg:col-span-8 space-y-24">
-            
+
             {/* Hero Gallery */}
             <section className="relative group">
               <div className="aspect-[16/9] bg-gray-100 overflow-hidden rounded-sm">
@@ -159,19 +159,19 @@ export default function CarDetailsPage() {
 
               {car.media?.photo_links && car.media.photo_links.length > 1 && (
                 <>
-                  <button 
+                  <button
                     onClick={prevImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
-                  <button 
+                  <button
                     onClick={nextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
-                  
+
                   <div className="mt-6 flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                     {car.media.photo_links.map((link, idx) => (
                       <button
@@ -207,7 +207,7 @@ export default function CarDetailsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4">
                   {car.extra.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center justify-between py-4 border-b border-gray-100">
-                      <span className="text-sm font-medium text-gray-900">{feature}</span>
+                      <span className="text-sm font-medium text-gray-900">{feature.includes('@') ? feature.split('@').pop()?.trim() : feature}</span>
                       <CheckCircle2 className="w-4 h-4 text-gray-300" />
                     </div>
                   ))}
@@ -218,7 +218,7 @@ export default function CarDetailsPage() {
 
           {/* Right Column: Specs & Contact */}
           <div className="lg:col-span-4 space-y-12">
-            
+
             {/* Key Specs Card */}
             <div className="border border-gray-100 p-10 space-y-10 sticky top-32">
               <div className="space-y-2">
