@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tag, SlidersHorizontal, CarFront, X, Loader2, ArrowRight, AlertCircle, Gauge, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface CarListing {
   id: string;
@@ -30,32 +31,51 @@ interface CarListing {
 }
 
 export default function AutoTrader() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <AutoTraderContent />
+    </Suspense>
+  );
+}
+
+function AutoTraderContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [listings, setListings] = useState<CarListing[]>([]);
   const [totalFound, setTotalFound] = useState(0);
   const [page, setPage] = useState(0);
 
-  const [filters, setFilters] = useState({
-    make: "",
-    model: "",
-    year_min: "",
-    year_max: "",
-    price_max: "",
-    body_type: "",
-    car_type: "used"
-  });
+  const initialFilters = {
+    make: searchParams.get("make") || "",
+    model: searchParams.get("model") || "",
+    year_min: searchParams.get("year_min") || "",
+    year_max: searchParams.get("year_max") || "",
+    price_max: searchParams.get("price_max") || "",
+    body_type: searchParams.get("body_type") || "",
+    car_type: searchParams.get("car_type") || "used"
+  };
 
-  // Active Filters (only updated when Apply is clicked)
-  const [activeFilters, setActiveFilters] = useState({
-    make: "",
-    model: "",
-    year_min: "",
-    year_max: "",
-    price_max: "",
-    body_type: "",
-    car_type: "used"
-  });
+  const [filters, setFilters] = useState(initialFilters);
+  const [activeFilters, setActiveFilters] = useState(initialFilters);
+
+  // Sync state whenever the URL changes (e.g. Back button)
+  useEffect(() => {
+    const freshFilters = {
+      make: searchParams.get("make") || "",
+      model: searchParams.get("model") || "",
+      year_min: searchParams.get("year_min") || "",
+      year_max: searchParams.get("year_max") || "",
+      price_max: searchParams.get("price_max") || "",
+      body_type: searchParams.get("body_type") || "",
+      car_type: searchParams.get("car_type") || "used"
+    };
+    setActiveFilters(freshFilters);
+    setFilters(freshFilters);
+    setPage(0);
+  }, [searchParams]);
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -152,8 +172,12 @@ export default function AutoTrader() {
 
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
-    setActiveFilters(filters);
-    setPage(0); // Reset pagination on new search
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, val]) => {
+      if (val) params.set(key, val);
+    });
+    // This pushes to the URL, which triggers the searchParams useEffect above
+    router.push(`/?${params.toString()}`, { scroll: false });
     setShowFilters(false);
   };
 
