@@ -112,9 +112,30 @@ function AutoTraderContent() {
       .finally(() => setLoadingModels(false));
   }, [filters.make]);
 
-  const fetchInventory = useCallback(async (isLoadMore = false) => {
+  const fetchInventory = useCallback(async (isLoadMore = false, forceFresh = false) => {
     try {
       setError(null);
+
+      // Try resolving from cache first if this is an initial mount (not load more)
+      if (!isLoadMore && !forceFresh && typeof window !== 'undefined') {
+        const saved = sessionStorage.getItem('autosphere_state');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed.search === window.location.search) {
+              setListings(parsed.listings);
+              setPage(parsed.page);
+              setTotalFound(parsed.totalFound);
+              setLoading(false);
+
+              // Apply scroll restoration slightly after DOM repaints
+              setTimeout(() => window.scrollTo(0, parsed.scrollY), 50);
+              return;
+            }
+          } catch (e) { }
+        }
+      }
+
       if (!isLoadMore) {
         setLoading(true);
         setPage(0);
@@ -177,6 +198,12 @@ function AutoTraderContent() {
     Object.entries(filters).forEach(([key, val]) => {
       if (val) params.set(key, val);
     });
+
+    // Invalidate cached memory on completely new search!
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('autosphere_state');
+    }
+
     // This pushes to the URL, which triggers the searchParams useEffect above
     router.push(`/?${params.toString()}`, { scroll: false });
     setShowFilters(false);
@@ -311,7 +338,19 @@ function AutoTraderContent() {
                 transition={{ delay: (idx % 3) * 0.1 }}
                 className="group"
               >
-                <Link href={`/car/${car.id}`} className="block space-y-6">
+                <Link
+                  href={`/car/${car.id}`}
+                  onClick={() => {
+                    sessionStorage.setItem('autosphere_state', JSON.stringify({
+                      search: window.location.search,
+                      listings,
+                      page,
+                      totalFound,
+                      scrollY: window.scrollY
+                    }));
+                  }}
+                  className="block space-y-6"
+                >
                   <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 rounded-sm">
                     {car.media?.photo_links?.[0] ? (
                       <img
