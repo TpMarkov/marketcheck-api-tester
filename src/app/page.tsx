@@ -59,7 +59,10 @@ function AutoTraderContent() {
     fuel_type: searchParams.get("fuel_type") || "",
     transmission: searchParams.get("transmission") || "",
     drivetrain: searchParams.get("drivetrain") || "",
-    car_type: searchParams.get("car_type") || "used"
+    car_type: searchParams.get("car_type") || "used",
+    price_min: searchParams.get("price_min") || "",
+    sort_by: searchParams.get("sort_by") || "",
+    sort_order: searchParams.get("sort_order") || ""
   };
 
   const [filters, setFilters] = useState(initialFilters);
@@ -78,7 +81,10 @@ function AutoTraderContent() {
       fuel_type: searchParams.get("fuel_type") || "",
       transmission: searchParams.get("transmission") || "",
       drivetrain: searchParams.get("drivetrain") || "",
-      car_type: searchParams.get("car_type") || "used"
+      car_type: searchParams.get("car_type") || "used",
+      price_min: searchParams.get("price_min") || "",
+      sort_by: searchParams.get("sort_by") || "",
+      sort_order: searchParams.get("sort_order") || ""
     };
     setActiveFilters(freshFilters);
     setFilters(freshFilters);
@@ -154,12 +160,22 @@ function AutoTraderContent() {
 
       if (activeFilters.make) queryParams.append("make", activeFilters.make);
       if (activeFilters.model) queryParams.append("model", activeFilters.model);
-      if (activeFilters.year_min) queryParams.append("year_min", activeFilters.year_min);
-      if (activeFilters.year_max) queryParams.append("year_max", activeFilters.year_max);
-      if (activeFilters.price_max) queryParams.append("price_max", activeFilters.price_max);
-      if (activeFilters.miles_max) queryParams.append("miles_max", activeFilters.miles_max);
+      if (activeFilters.price_max) {
+        queryParams.append("price_range", `0-${activeFilters.price_max}`);
+      }
+
+      if (activeFilters.miles_max) {
+        queryParams.append("miles_range", `0-${activeFilters.miles_max}`);
+      }
+
+      if (activeFilters.year_min || activeFilters.year_max) {
+        const min = activeFilters.year_min || "0";
+        const max = activeFilters.year_max || "9999";
+        queryParams.append("year_range", `${min}-${max}`);
+      }
+
       if (activeFilters.body_type) queryParams.append("body_type", activeFilters.body_type);
-      
+
       if (activeFilters.fuel_type) {
         if (activeFilters.fuel_type === "Plug-In Hybrid") {
           queryParams.append("powertrain_type", "PHEV");
@@ -175,6 +191,9 @@ function AutoTraderContent() {
       if (activeFilters.transmission) queryParams.append("transmission", activeFilters.transmission);
       if (activeFilters.drivetrain) queryParams.append("drivetrain", activeFilters.drivetrain);
       if (activeFilters.car_type) queryParams.append("car_type", activeFilters.car_type);
+      if (activeFilters.price_min) queryParams.append("price_min", activeFilters.price_min);
+      if (activeFilters.sort_by) queryParams.append("sort_by", activeFilters.sort_by);
+      if (activeFilters.sort_order) queryParams.append("sort_order", activeFilters.sort_order);
 
       queryParams.append("start", (isLoadMore ? (page + 1) * 50 : 0).toString());
       queryParams.append("rows", "50");
@@ -223,14 +242,32 @@ function AutoTraderContent() {
       if (val) params.set(key, val);
     });
 
-    // Invalidate cached memory on completely new search!
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('autosphere_state');
     }
 
-    // This pushes to the URL, which triggers the searchParams useEffect above
     router.push(`/?${params.toString()}`, { scroll: false });
     setShowFilters(false);
+  };
+
+  const applyFooterFilter = (type: 'new' | 'electric') => {
+    const params = new URLSearchParams();
+    if (type === 'new') {
+      params.set('sort_by', 'first_seen_at');
+      params.set('sort_order', 'desc');
+    } else if (type === 'electric') {
+      params.set('fuel_type', 'Electric');
+    }
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('autosphere_state');
+    }
+
+    router.push(`/?${params.toString()}`, { scroll: true });
+
+    // Scroll to inventory section
+    const el = document.getElementById('inventory');
+    el?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -324,7 +361,7 @@ function AutoTraderContent() {
           )}
         </AnimatePresence>
 
-        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
+        <div id="inventory" className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
           <div>
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-4">Inventory</h2>
             <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">
@@ -617,9 +654,8 @@ function AutoTraderContent() {
             <div className="space-y-6">
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em]">Inventory</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-black transition">New Arrivals</a></li>
-                <li><a href="#" className="hover:text-black transition">Electric</a></li>
-                <li><a href="#" className="hover:text-black transition">Luxury</a></li>
+                <li><button onClick={() => applyFooterFilter('new')} className="hover:text-black transition">New Arrivals</button></li>
+                <li><button onClick={() => applyFooterFilter('electric')} className="hover:text-black transition">Electric</button></li>
               </ul>
             </div>
             <div className="space-y-6">
