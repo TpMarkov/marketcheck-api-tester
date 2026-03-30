@@ -4,8 +4,8 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
-import { 
-  CheckCircle2, 
+import {
+  CheckCircle2,
   CarFront,
   ArrowRight,
   Globe,
@@ -20,19 +20,19 @@ import {
 export default function AboutPage() {
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { 
+    visible: {
+      opacity: 1,
+      transition: {
         staggerChildren: 0.1,
         delayChildren: 0.3
-      } 
+      }
     }
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.8, ease: "easeOut" }
     }
@@ -67,13 +67,13 @@ export default function AboutPage() {
         {/* Luxury Hero Section */}
         <header className="relative h-[90vh] flex items-center bg-black overflow-hidden">
           {/* Parallax Background */}
-          <motion.div 
+          <motion.div
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="absolute inset-0 z-0"
           >
-            <Image 
+            <Image
               src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=2400"
               alt="Sleek premium automotive design"
               fill
@@ -96,7 +96,7 @@ export default function AboutPage() {
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">Our Vision</span>
               </motion.div>
 
-              <motion.h1 
+              <motion.h1
                 variants={itemVariants}
                 className="text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter uppercase text-white mb-8 leading-[0.85] md:leading-[0.8]"
               >
@@ -104,16 +104,16 @@ export default function AboutPage() {
                 <span className="text-white/30 italic lowercase tracking-normal font-normal serif">of Automotive</span> <br />
                 Transparency
               </motion.h1>
-              
-              <motion.p 
+
+              <motion.p
                 variants={itemVariants}
                 className="text-xl md:text-2xl text-white/70 max-w-2xl leading-relaxed mb-12 serif italic font-medium"
               >
                 AutoSphere isn&apos;t just a marketplace. We&apos;re a data-driven engine empowering buyers, dealers, and professionals with real-time market clarity.
               </motion.p>
-              
+
               <motion.div variants={itemVariants} className="flex flex-wrap gap-6">
-                <Link 
+                <Link
                   href="/"
                   className="group bg-white text-black px-10 py-5 rounded-full font-bold uppercase text-[10px] tracking-[0.2em] flex items-center gap-3 hover:bg-gray-100 transition-all shadow-2xl"
                 >
@@ -122,16 +122,16 @@ export default function AboutPage() {
               </motion.div>
             </motion.div>
           </div>
-          
+
           {/* Scroll Indicator */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="absolute bottom-10 left-12 flex items-center gap-4 hidden lg:flex"
+            className="absolute bottom-10 right-12 flex items-center gap-4 hidden lg:flex flex-row-reverse"
           >
             <div className="w-px h-12 bg-white/20 relative overflow-hidden">
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, 48, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute top-0 left-0 w-full h-1/2 bg-white"
@@ -155,21 +155,21 @@ export default function AboutPage() {
                 We bridge the gap between complex market analytics and effortless user experiences, creating a standard of trust in every transaction.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { 
-                  title: "Market Velocity", 
+                {
+                  title: "Market Velocity",
                   desc: "Real-time sync with millions of listings ensuring you catch every price shift the moment it happens.",
                   icon: TrendingUp
                 },
-                { 
-                  title: "Deep Verification", 
+                {
+                  title: "Deep Verification",
                   desc: "Every VIN is decoded and analyzed against historical data to ensure absolute authenticity and value.",
                   icon: ShieldCheck
                 },
-                { 
-                  title: "Global Standards", 
+                {
+                  title: "Global Standards",
                   desc: "Unifying automotive data standards from across North America into one seamless, intuitive interface.",
                   icon: Award
                 }
@@ -204,7 +204,7 @@ export default function AboutPage() {
                 <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-12 leading-[0.9]">
                   Unparalleled <br />Market Intelligence
                 </h2>
-                
+
                 <div className="space-y-12">
                   {[
                     { label: "Active Listings", value: "2.4M+", icon: Search },
@@ -225,14 +225,14 @@ export default function AboutPage() {
               </motion.div>
 
               <div className="relative aspect-square">
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-0"
                 >
-                  <Image 
+                  <Image
                     src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200"
                     alt="Advanced automotive diagnostics"
                     fill
@@ -261,10 +261,10 @@ export default function AboutPage() {
                 A glimpse into the calibre of inventory our platform monitors every second of every day.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-[800px]">
               <div className="md:col-span-8 relative group overflow-hidden rounded-sm">
-                <Image 
+                <Image
                   src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1600"
                   alt="Classic luxury vehicle"
                   fill
@@ -277,7 +277,7 @@ export default function AboutPage() {
               </div>
               <div className="md:col-span-4 grid grid-rows-2 gap-8">
                 <div className="relative group overflow-hidden rounded-sm">
-                  <Image 
+                  <Image
                     src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800"
                     alt="Heritage muscle car"
                     fill
@@ -289,7 +289,7 @@ export default function AboutPage() {
                   </div>
                 </div>
                 <div className="relative group overflow-hidden rounded-sm">
-                  <Image 
+                  <Image
                     src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800"
                     alt="Modern executive vehicle"
                     fill
@@ -320,7 +320,7 @@ export default function AboutPage() {
               <p className="text-xl text-gray-500 serif italic mb-16 max-w-2xl mx-auto font-medium">
                 Whether you&apos;re hunting for a deal, analyzing competition, or discovering your dream drive — clarity is just a click away.
               </p>
-              <Link 
+              <Link
                 href="/"
                 className="inline-flex items-center gap-6 text-2xl font-bold tracking-tighter uppercase border-b-2 border-black pb-4 hover:opacity-50 transition-all group"
               >
