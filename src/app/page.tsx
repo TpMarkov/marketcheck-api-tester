@@ -289,10 +289,10 @@ function AutoTraderContent() {
           </Link>
 
           <div className="hidden md:flex gap-10 text-[11px] font-bold uppercase tracking-[0.2em]">
-            <a href="#" className="hover:opacity-50 transition">Inventory</a>
-            <a href="#" className="hover:opacity-50 transition">Sell</a>
-            <a href="#" className="hover:opacity-50 transition">Finance</a>
-            <a href="#" className="hover:opacity-50 transition">About</a>
+            <Link href="/" className="hover:opacity-50 transition">Inventory</Link>
+            <Link href="/" className="hover:opacity-50 transition">Sell</Link>
+            <Link href="/" className="hover:opacity-50 transition">Finance</Link>
+            <Link href="/about" className="hover:opacity-50 transition">About</Link>
           </div>
 
           <button
@@ -667,17 +667,17 @@ function AutoTraderContent() {
             <div className="space-y-6">
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em]">Company</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-black transition">Our Story</a></li>
-                <li><a href="#" className="hover:text-black transition">Careers</a></li>
-                <li><a href="#" className="hover:text-black transition">Press</a></li>
+                <li><Link href="/about" className="hover:text-black transition">Our Story</Link></li>
+                <li><Link href="/about" className="hover:text-black transition">Careers</Link></li>
+                <li><Link href="/about" className="hover:text-black transition">Press</Link></li>
               </ul>
             </div>
             <div className="space-y-6">
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em]">Support</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-black transition">Contact</a></li>
-                <li><a href="#" className="hover:text-black transition">FAQ</a></li>
-                <li><a href="#" className="hover:text-black transition">Terms</a></li>
+                <li><Link href="/about" className="hover:text-black transition">Contact</Link></li>
+                <li><Link href="/about" className="hover:text-black transition">FAQ</Link></li>
+                <li><Link href="/about" className="hover:text-black transition">Terms</Link></li>
               </ul>
             </div>
           </div>
