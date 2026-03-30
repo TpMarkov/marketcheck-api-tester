@@ -160,8 +160,10 @@ function AutoTraderContent() {
 
       if (activeFilters.make) queryParams.append("make", activeFilters.make);
       if (activeFilters.model) queryParams.append("model", activeFilters.model);
-      if (activeFilters.price_max) {
-        queryParams.append("price_range", `0-${activeFilters.price_max}`);
+      if (activeFilters.price_min || activeFilters.price_max) {
+        const min = activeFilters.price_min || "0";
+        const max = activeFilters.price_max || "999999";
+        queryParams.append("price_range", `${min}-${max}`);
       }
 
       if (activeFilters.miles_max) {
@@ -182,7 +184,11 @@ function AutoTraderContent() {
         } else if (activeFilters.fuel_type === "Electric") {
           queryParams.append("powertrain_type", "BEV");
         } else if (activeFilters.fuel_type === "Hybrid") {
-          queryParams.append("powertrain_type", "HEV");
+          queryParams.append("powertrain_type", "HEV,MHEV");
+        } else if (activeFilters.fuel_type === "Gasoline") {
+          // Broad search for standard internal combustion engines
+          queryParams.append("powertrain_type", "Combustion");
+          queryParams.append("fuel_type", "Unleaded,Premium Unleaded");
         } else {
           queryParams.append("fuel_type", activeFilters.fuel_type);
         }
