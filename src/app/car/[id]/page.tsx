@@ -56,6 +56,7 @@ export default function CarDetailsPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [calculationResult, setCalculationResult] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [shippingMethod, setShippingMethod] = useState<"roro" | "container">("roro");
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -126,6 +127,7 @@ export default function CarDetailsPage() {
 
     const lat = car.latitude || car.dealer?.latitude;
     const lng = car.longitude || car.dealer?.longitude;
+    const bodyType = car.build?.body_type;
 
     try {
       const res = await fetch("/api/shipping/calculate", {
@@ -134,7 +136,9 @@ export default function CarDetailsPage() {
         body: JSON.stringify({
           price: car.price,
           lat,
-          lng
+          lng,
+          bodyType,
+          method: shippingMethod
         })
       });
       if (res.ok) {
@@ -251,10 +255,9 @@ export default function CarDetailsPage() {
           </div>
 
           {/* Right Column: Specs & Contact */}
-          <div className="lg:col-span-4 space-y-12">
-
+          <div className="lg:col-span-4 lg:sticky lg:top-24 h-fit max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar pr-1">
             {/* Key Specs Card */}
-            <div className="border border-gray-100 p-6 space-y-6 sticky top-24">
+            <div className="border border-gray-100 p-6 space-y-6">
               <div className="space-y-2">
                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Price</span>
                 <div className="text-4xl font-bold tracking-tighter uppercase">
@@ -294,6 +297,22 @@ export default function CarDetailsPage() {
                     </a>
                   )}
 
+                  {/* Method Selector */}
+                  <div className="flex bg-gray-50 p-1 rounded-sm border border-gray-100">
+                    <button
+                      onClick={() => setShippingMethod("roro")}
+                      className={`flex-1 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-all rounded-[1px] ${shippingMethod === "roro" ? "bg-white shadow-sm text-black" : "text-gray-400 hover:text-gray-600"}`}
+                    >
+                      RoRo (Cheaper)
+                    </button>
+                    <button
+                      onClick={() => setShippingMethod("container")}
+                      className={`flex-1 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-all rounded-[1px] ${shippingMethod === "container" ? "bg-white shadow-sm text-black" : "text-gray-400 hover:text-gray-600"}`}
+                    >
+                      Container (Safer)
+                    </button>
+                  </div>
+
                   {/* Shipping Calculator Button */}
                   <button
                     onClick={handleCalculateShipping}
@@ -322,42 +341,49 @@ export default function CarDetailsPage() {
                         exit={{ opacity: 0, height: 0, marginTop: 0 }}
                         className="bg-indigo-50/50 rounded-sm overflow-hidden"
                       >
-                        <div className="p-3.5 space-y-3">
-                          <div className="flex justify-between items-end border-b border-indigo-100 pb-2">
-                            <h5 className="text-[9px] font-bold uppercase tracking-[0.2em] text-indigo-900">Summary</h5>
+                        <div className="p-4 space-y-4">
+                          <div className="flex justify-between items-end border-b border-indigo-100 pb-2.5">
+                            <h5 className="text-[11px] font-bold uppercase tracking-[0.1em] text-indigo-900">Breakdown</h5>
                             {calculationResult.port && (
-                              <div className="text-[8px] font-bold uppercase text-indigo-400 text-right leading-tight">
-                                via {calculationResult.port} ({calculationResult.distance} mi)
+                              <div className="text-[10px] font-semibold text-indigo-400 text-right leading-tight">
+                                {calculationResult.port} <br />
+                                {calculationResult.method} • {car.build?.body_type || "Std"}
                               </div>
                             )}
                           </div>
-
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-[10px]">
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Inland</span>
-                              <span className="font-bold">${calculationResult.inlandTransport}</span>
+                          
+                          <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-xs">
+                            <div className="flex justify-between items-center bg-white/50 px-2 py-1.5 rounded-sm">
+                              <span className="text-gray-400 font-medium scale-90 origin-left">Transport</span>
+                              <span className="font-bold text-gray-900">${calculationResult.inlandTransport.toLocaleString()}</span>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Ocean</span>
-                              <span className="font-bold">${calculationResult.oceanShipping}</span>
+                            <div className="flex justify-between items-center bg-white/50 px-2 py-1.5 rounded-sm">
+                              <span className="text-gray-400 font-medium scale-90 origin-left">Ocean</span>
+                              <span className="font-bold text-gray-900">${calculationResult.oceanShipping.toLocaleString()}</span>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Duty</span>
-                              <span className="font-bold">${calculationResult.duty}</span>
+                            <div className="flex justify-between items-center bg-white/50 px-2 py-1.5 rounded-sm">
+                              <span className="text-gray-400 font-medium scale-90 origin-left">Duty</span>
+                              <span className="font-bold text-gray-900">${calculationResult.duty.toLocaleString()}</span>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">VAT</span>
-                              <span className="font-bold">${calculationResult.vat}</span>
+                            <div className="flex justify-between items-center bg-white/50 px-2 py-1.5 rounded-sm">
+                              <span className="text-gray-400 font-medium scale-90 origin-left">VAT</span>
+                              <span className="font-bold text-gray-900">${calculationResult.vat.toLocaleString()}</span>
                             </div>
                           </div>
 
-                          <div className="pt-2 border-t border-indigo-100 flex justify-between items-center text-indigo-900">
-                            <span className="text-[10px] font-bold uppercase">Total Landed</span>
-                            <span className="text-lg font-black tracking-tighter">
+                          <div className="pt-3 border-t border-indigo-100 flex justify-between items-center text-indigo-900">
+                            <div className="flex flex-col">
+                              <span className="text-[11px] font-bold uppercase tracking-tight">Total Landed</span>
+                              <span className="text-[10px] font-black text-indigo-600 bg-indigo-100/50 px-1.5 py-0.5 rounded-sm mt-1">
+                                ~{calculationResult.totalEUR.toLocaleString()} EUR
+                              </span>
+                            </div>
+                            <span className="text-2xl font-black tracking-tighter">
                               ${calculationResult.total.toLocaleString()}
                             </span>
                           </div>
                         </div>
+
                       </motion.div>
                     )}
                   </AnimatePresence>
