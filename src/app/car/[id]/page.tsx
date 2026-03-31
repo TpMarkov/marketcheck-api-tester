@@ -17,6 +17,8 @@ interface CarDetail {
   carfax_1_owner: boolean;
   carfax_clean_title: boolean;
   data_source: string;
+  latitude?: number;
+  longitude?: number;
   media?: { photo_links?: string[] };
   extra?: { features?: string[], options?: string[], seller_comment?: string };
   build?: {
@@ -41,6 +43,8 @@ interface CarDetail {
     street: string;
     phone: string;
     website: string;
+    latitude?: number;
+    longitude?: number;
   };
 }
 
@@ -119,11 +123,19 @@ export default function CarDetailsPage() {
   const handleCalculateShipping = async () => {
     if (!car || car.price <= 0) return;
     setIsCalculating(true);
+
+    const lat = car.latitude || car.dealer?.latitude;
+    const lng = car.longitude || car.dealer?.longitude;
+
     try {
       const res = await fetch("/api/shipping/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ price: car.price })
+        body: JSON.stringify({
+          price: car.price,
+          lat,
+          lng
+        })
       });
       if (res.ok) {
         const data = await res.json();
@@ -250,23 +262,23 @@ export default function CarDetailsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-8">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Mileage</span>
-                  <div className="font-bold">{car.miles ? `${car.miles.toLocaleString()} mi` : "N/A"}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-0.5">
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Mileage</span>
+                  <div className="font-bold text-sm">{car.miles ? `${car.miles.toLocaleString()} mi` : "N/A"}</div>
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Year</span>
-                  <div className="font-bold">{car.build?.year || "N/A"}</div>
+                <div className="space-y-0.5">
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Year</span>
+                  <div className="font-bold text-sm">{car.build?.year || "N/A"}</div>
                 </div>
               </div>
 
-              <div className="space-y-6 pt-6 border-t border-gray-100">
-                <div className="space-y-4">
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Dealer Information</h4>
-                  <div className="space-y-1">
-                    <div className="font-bold uppercase tracking-tight">{car.dealer?.name || "Premium Dealer"}</div>
-                    <div className="text-sm text-gray-500 serif italic">{car.dealer?.city}, {car.dealer?.state}</div>
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <div className="space-y-2">
+                  <h4 className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Dealer</h4>
+                  <div className="space-y-0.5">
+                    <div className="font-bold uppercase tracking-tight text-xs leading-none">{car.dealer?.name || "Dealer"}</div>
+                    <div className="text-[11px] text-gray-500 serif italic">{car.dealer?.city}, {car.dealer?.state}</div>
                   </div>
                 </div>
 
@@ -310,35 +322,40 @@ export default function CarDetailsPage() {
                         exit={{ opacity: 0, height: 0, marginTop: 0 }}
                         className="bg-indigo-50/50 rounded-sm overflow-hidden"
                       >
-                        <div className="p-4 space-y-3">
-                          <h5 className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-900">Total Landed Cost</h5>
-                          <div className="space-y-1.5">
-                            <div className="flex justify-between text-xs">
-                              <span className="text-gray-500">Inland Transport (USA)</span>
-                              <span className="font-bold">${calculationResult.inlandTransport.toLocaleString()}</span>
+                        <div className="p-3.5 space-y-3">
+                          <div className="flex justify-between items-end border-b border-indigo-100 pb-2">
+                            <h5 className="text-[9px] font-bold uppercase tracking-[0.2em] text-indigo-900">Summary</h5>
+                            {calculationResult.port && (
+                              <div className="text-[8px] font-bold uppercase text-indigo-400 text-right leading-tight">
+                                via {calculationResult.port} ({calculationResult.distance} mi)
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-[10px]">
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Inland</span>
+                              <span className="font-bold">${calculationResult.inlandTransport}</span>
                             </div>
-                            <div className="flex justify-between text-xs">
-                              <span className="text-gray-500">Ocean Shipping</span>
-                              <span className="font-bold">${calculationResult.oceanShipping.toLocaleString()}</span>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Ocean</span>
+                              <span className="font-bold">${calculationResult.oceanShipping}</span>
                             </div>
-                            <div className="flex justify-between text-xs">
-                              <span className="text-gray-500">Customs Duty (10%)</span>
-                              <span className="font-bold">${calculationResult.duty.toLocaleString()}</span>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Duty</span>
+                              <span className="font-bold">${calculationResult.duty}</span>
                             </div>
-                            <div className="flex justify-between text-xs">
-                              <span className="text-gray-500">VAT (20%)</span>
-                              <span className="font-bold">${calculationResult.vat.toLocaleString()}</span>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">VAT</span>
+                              <span className="font-bold">${calculationResult.vat}</span>
                             </div>
-                            <div className="flex justify-between text-xs">
-                              <span className="text-gray-500">Processing Fees</span>
-                              <span className="font-bold">${calculationResult.otherFees.toLocaleString()}</span>
-                            </div>
-                            <div className="pt-3 border-t border-indigo-100 flex justify-between items-center">
-                              <span className="text-xs font-bold uppercase text-indigo-900">Total</span>
-                              <span className="text-xl font-bold tracking-tighter text-indigo-900">
-                                ${calculationResult.total.toLocaleString()}
-                              </span>
-                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-indigo-100 flex justify-between items-center text-indigo-900">
+                            <span className="text-[10px] font-bold uppercase">Total Landed</span>
+                            <span className="text-lg font-black tracking-tighter">
+                              ${calculationResult.total.toLocaleString()}
+                            </span>
                           </div>
                         </div>
                       </motion.div>
