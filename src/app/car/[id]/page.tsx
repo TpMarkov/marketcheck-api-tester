@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, CarFront, CheckCircle2, ShieldCheck, Phone, Globe, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, CarFront, CheckCircle2, ShieldCheck, Phone, Globe, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CarDetail {
@@ -387,6 +388,45 @@ export default function CarDetailsPage() {
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {/* View Route Details Button */}
+                  {calculationResult && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <Link
+                        href={`/car/${car.id}/route-details`}
+                        onClick={() => {
+                          const routeData = {
+                            carId: car.id,
+                            carName: car.heading || car.build ? `${car.build?.year} ${car.build?.make} ${car.build?.model}` : "Vehicle",
+                            carPrice: car.price,
+                            carImage: car.media?.photo_links?.[0] || "",
+                            carBodyType: car.build?.body_type || "Standard",
+                            inlandTransport: calculationResult.inlandTransport,
+                            oceanShipping: calculationResult.oceanShipping,
+                            duty: calculationResult.duty,
+                            vat: calculationResult.vat,
+                            otherFees: calculationResult.otherFees,
+                            total: calculationResult.total,
+                            totalEUR: calculationResult.totalEUR,
+                            port: calculationResult.port,
+                            distance: calculationResult.distance,
+                            priority: calculationResult.priority,
+                            method: calculationResult.method,
+                            exchangeRate: calculationResult.exchangeRate,
+                          };
+                          localStorage.setItem("routeDetailsData", JSON.stringify(routeData));
+                        }}
+                        className="flex items-center justify-center gap-2 w-full py-3 mt-2 bg-black text-white font-bold uppercase text-[11px] tracking-[0.2em] hover:bg-gray-900 transition-all active:scale-[0.98] rounded-sm"
+                      >
+                        <ArrowRight className="w-4 h-4" />
+                        View Route Details
+                      </Link>
+                    </motion.div>
+                  )}
                 </div>
               </div>
 
