@@ -50,6 +50,8 @@ export default function CarDetailsPage() {
   const [car, setCar] = useState<CarDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [calculationResult, setCalculationResult] = useState<any>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -111,6 +113,26 @@ export default function CarDetailsPage() {
   const prevImage = () => {
     if (car.media?.photo_links) {
       setActiveImage((prev) => (prev - 1 + car.media!.photo_links!.length) % car.media!.photo_links!.length);
+    }
+  };
+
+  const handleCalculateShipping = async () => {
+    if (!car || car.price <= 0) return;
+    setIsCalculating(true);
+    try {
+      const res = await fetch("/api/shipping/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price: car.price })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCalculationResult(data);
+      }
+    } catch (error) {
+      console.error("Calculation failed", error);
+    } finally {
+      setIsCalculating(false);
     }
   };
 
@@ -220,7 +242,7 @@ export default function CarDetailsPage() {
           <div className="lg:col-span-4 space-y-12">
 
             {/* Key Specs Card */}
-            <div className="border border-gray-100 p-10 space-y-10 sticky top-32">
+            <div className="border border-gray-100 p-6 space-y-6 sticky top-24">
               <div className="space-y-2">
                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Price</span>
                 <div className="text-4xl font-bold tracking-tighter uppercase">
@@ -248,17 +270,80 @@ export default function CarDetailsPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   {car.dealer?.phone && (
-                    <a href={`tel:${car.dealer.phone}`} className="flex items-center justify-center gap-3 bg-black text-white py-5 rounded-sm font-bold uppercase text-[11px] tracking-[0.2em] hover:bg-gray-900 transition-all">
+                    <a href={`tel:${car.dealer.phone}`} className="flex items-center justify-center gap-3 bg-black text-white py-3.5 rounded-sm font-bold uppercase text-[11px] tracking-[0.2em] hover:bg-gray-900 transition-all">
                       <Phone className="w-4 h-4" /> Call Dealer
                     </a>
                   )}
                   {car.vdp_url && (
-                    <a href={car.vdp_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 border border-gray-200 py-5 rounded-sm font-bold uppercase text-[11px] tracking-[0.2em] hover:border-black transition-all">
+                    <a href={car.vdp_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 border border-gray-200 py-3.5 rounded-sm font-bold uppercase text-[11px] tracking-[0.2em] hover:border-black transition-all">
                       <Globe className="w-4 h-4" /> Visit Website
                     </a>
                   )}
+
+                  {/* Shipping Calculator Button */}
+                  <button
+                    onClick={handleCalculateShipping}
+                    disabled={isCalculating || car.price <= 0}
+                    className={`flex items-center justify-center gap-3 py-3.5 rounded-sm font-bold uppercase text-[11px] tracking-[0.2em] transition-all border ${isCalculating ? 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed' : 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]'}`}
+                  >
+                    {isCalculating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Calculating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe className="w-4 h-4" />
+                        <span>Estimate to Bulgaria</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Shipping Breakdown */}
+                  <AnimatePresence>
+                    {calculationResult && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: 'auto', marginTop: 8 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        className="bg-indigo-50/50 rounded-sm overflow-hidden"
+                      >
+                        <div className="p-4 space-y-3">
+                          <h5 className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-900">Total Landed Cost</h5>
+                          <div className="space-y-1.5">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Inland Transport (USA)</span>
+                              <span className="font-bold">${calculationResult.inlandTransport.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Ocean Shipping</span>
+                              <span className="font-bold">${calculationResult.oceanShipping.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Customs Duty (10%)</span>
+                              <span className="font-bold">${calculationResult.duty.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">VAT (20%)</span>
+                              <span className="font-bold">${calculationResult.vat.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Processing Fees</span>
+                              <span className="font-bold">${calculationResult.otherFees.toLocaleString()}</span>
+                            </div>
+                            <div className="pt-3 border-t border-indigo-100 flex justify-between items-center">
+                              <span className="text-xs font-bold uppercase text-indigo-900">Total</span>
+                              <span className="text-xl font-bold tracking-tighter text-indigo-900">
+                                ${calculationResult.total.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
